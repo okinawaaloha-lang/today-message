@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>今日のひとことメーカー</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-sky-50 min-h-screen flex flex-col items-center justify-center p-4 font-sans text-gray-800">
+
+    <div class="w-full max-w-md mx-auto bg-white rounded-2xl shadow-lg p-6 md:p-10 text-center transition-all duration-300">
+        
+        <header class="mb-8">
+            <h1 class="text-2xl md:text-3xl font-bold text-sky-800">
+                今日のひとことメーカー
+            </h1>
+            <p class="text-gray-500 mt-2">あなたに元気をお届けします</p>
+        </header>
+
+        <div class="mb-8">
+            <button
+                id="showMessageBtn"
+                class="w-full bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-sky-300"
+            >
+                メッセージを表示
+            </button>
+        </div>
+
+        <div id="messageContainer" class="h-24 flex items-center justify-center">
+            <p id="placeholderText" class="text-gray-400">ボタンを押してください</p>
+        </div>
+
+    </div>
+
+    <footer class="text-center text-gray-400 text-sm mt-8">
+        <p>&copy; <span id="year"></span> Today's Word Maker</p>
+    </footer>
+
+    <script>
+        const messages = [
+            '一歩ずつで大丈夫です。',
+            '今日もあなたは輝いています。',
+            '小さな成功を祝いましょう。',
+            'あなたの努力は必ず報われます。',
+            '大丈夫、すべてはうまくいきます。',
+            '自分を信じて進みましょう。',
+            '困難の先には光があります。',
+            'あなたは一人ではありません。',
+            '今日の頑張りが未来を作ります。',
+            '素晴らしい一日になりますように。',
+            '焦らないで、あなたのペースで。',
+            'たまにはゆっくり休みましょう。',
+        ];
+
+        const btn = document.getElementById("showMessageBtn");
+        const container = document.getElementById("messageContainer");
+        const placeholderText = document.getElementById("placeholderText");
+
+        let currentMessage = null;
+        let isAnimating = false;
+
+        btn.addEventListener("click", () => {
+            if (isAnimating) return;
+
+            isAnimating = true;
+
+            // 選択されたメッセージが同じにならないように調整
+            let newMessage = messages[Math.floor(Math.random() * messages.length)];
+            if (messages.length > 1) {
+                while (newMessage === currentMessage) {
+                    newMessage = messages[Math.floor(Math.random() * messages.length)];
+                }
+            }
+
+            // フェードアウト
+            container.style.opacity = 0;
+
+            setTimeout(() => {
+                currentMessage = newMessage;
+
+                container.innerHTML = `
+                    <div class="transition-opacity duration-300 opacity-100">
+                        <div class="bg-sky-100 border-l-4 border-sky-500 p-4 rounded-r-lg">
+                            <p class="text-lg md:text-xl font-medium text-sky-900">${currentMessage}</p>
+                        </div>
+                    </div>
+                `;
+                container.style.opacity = 1;
+
+                isAnimating = false;
+            }, 300);
+        });
+
+        // 年号
+        document.getElementById("year").textContent = new Date().getFullYear();
+    </script>
+
+</body>
+</html>
