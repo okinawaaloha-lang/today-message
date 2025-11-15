@@ -7,33 +7,33 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="bg-sky-50 min-h-screen flex flex-col items-center justify-center p-4 font-sans text-gray-800">
+<body class="bg-gray-900 min-h-screen flex flex-col items-center justify-center p-4 font-sans text-gray-100">
 
-    <div class="w-full max-w-md mx-auto bg-white rounded-2xl shadow-lg p-6 md:p-10 text-center transition-all duration-300">
+    <div class="w-full max-w-md mx-auto bg-gray-800 rounded-2xl shadow-lg p-6 md:p-10 text-center transition-all duration-300">
         
         <header class="mb-8">
-            <h1 class="text-2xl md:text-3xl font-bold text-sky-800">
+            <h1 class="text-2xl md:text-3xl font-bold text-white">
                 今日のひとことメーカー
             </h1>
-            <p class="text-gray-500 mt-2">あなたに元気をお届けします</p>
+            <p class="text-gray-400 mt-2">あなたに元気をお届けします</p>
         </header>
 
         <div class="mb-8">
             <button
                 id="showMessageBtn"
-                class="w-full bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-sky-300"
+                class="w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-gray-500"
             >
                 メッセージを表示
             </button>
         </div>
 
-        <div id="messageContainer" class="h-24 flex items-center justify-center">
-            <p id="placeholderText" class="text-gray-400">ボタンを押してください</p>
+        <div id="messageContainer" class="h-28 flex flex-col items-center justify-center space-y-2">
+            <p id="placeholderText" class="text-gray-500">ボタンを押してください</p>
         </div>
 
     </div>
 
-    <footer class="text-center text-gray-400 text-sm mt-8">
+    <footer class="text-center text-gray-500 text-sm mt-8">
         <p>&copy; <span id="year"></span> Today's Word Maker</p>
     </footer>
 
@@ -59,37 +59,59 @@
 
         let currentMessage = null;
         let isAnimating = false;
+        const favorites = [];
 
-        btn.addEventListener("click", () => {
-            if (isAnimating) return;
+        // 長押し検知用
+        let pressTimer;
 
-            isAnimating = true;
+        function displayMessage(msg) {
+            container.style.opacity = 0;
 
-            // 選択されたメッセージが同じにならないように調整
+            setTimeout(() => {
+                currentMessage = msg;
+                const heart = favorites.includes(msg) ? '❤️ ' : '';
+                container.innerHTML = `
+                    <div class="transition-opacity duration-300 opacity-100">
+                        <div class="bg-gray-700 border-l-4 border-gray-500 p-4 rounded-r-lg w-full">
+                            <p class="text-lg md:text-xl font-medium text-white">${heart}${msg}</p>
+                        </div>
+                    </div>
+                `;
+                container.style.opacity = 1;
+                isAnimating = false;
+            }, 300);
+        }
+
+        function getRandomMessage() {
             let newMessage = messages[Math.floor(Math.random() * messages.length)];
             if (messages.length > 1) {
                 while (newMessage === currentMessage) {
                     newMessage = messages[Math.floor(Math.random() * messages.length)];
                 }
             }
+            return newMessage;
+        }
 
-            // フェードアウト
-            container.style.opacity = 0;
+        // 通常クリック
+        btn.addEventListener("click", () => {
+            if (isAnimating) return;
+            isAnimating = true;
+            displayMessage(getRandomMessage());
+        });
 
-            setTimeout(() => {
-                currentMessage = newMessage;
+        // 長押しでお気に入り登録
+        btn.addEventListener("touchstart", (e) => {
+            pressTimer = setTimeout(() => {
+                if (currentMessage && !favorites.includes(currentMessage)) {
+                    favorites.push(currentMessage);
+                    displayMessage(currentMessage);
+                    alert("お気に入りに登録しました！");
+                }
+            }, 500); // 0.5秒長押し
+        });
 
-                container.innerHTML = `
-                    <div class="transition-opacity duration-300 opacity-100">
-                        <div class="bg-sky-100 border-l-4 border-sky-500 p-4 rounded-r-lg">
-                            <p class="text-lg md:text-xl font-medium text-sky-900">${currentMessage}</p>
-                        </div>
-                    </div>
-                `;
-                container.style.opacity = 1;
-
-                isAnimating = false;
-            }, 300);
+        btn.addEventListener("touchend", (e) => {
+            clearTimeout(pressTimer);
         });
 
         // 年号
